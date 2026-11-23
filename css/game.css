@@ -392,6 +392,7 @@ button { font: inherit; color: inherit; }
 #battle { background-size: cover; background-position: center; }
 
 .codebox { display: flex; flex-direction: column; gap: 6px; }
+.opthead { margin: 16px 0 2px; font-family: 'Bangers', cursive; font-size: 22px; letter-spacing: .05em; color: var(--gold2); font-weight: 400; }
 .coderow { display: flex; gap: 8px; }
 .coderow input { flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: #0b1d1d;
   color: var(--ink); font: inherit; text-transform: uppercase; letter-spacing: .06em; }

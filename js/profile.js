@@ -13,7 +13,7 @@
 
   function fresh() {
     return { v: 1, adBucks: 0, starterOpened: D.starter.map(() => false), owned: {}, deck: { chars: [], mods: [] },
-      unlockAll: false, classicOpening: false, avatar: 'C077', story: {}, stats: { wins: 0, losses: 0, draws: 0 }, newCards: [] };
+      unlockAll: false, classicOpening: false, tester: false, avatar: 'C077', story: {}, stats: { wins: 0, losses: 0, draws: 0 }, newCards: [] };
   }
   let P = fresh();
   let storageOk = true;
@@ -22,6 +22,7 @@
       const raw = localStorage.getItem(KEY);
       if (raw) { const x = JSON.parse(raw); if (x && x.v === 1) { delete x.bothSkip; P = Object.assign(fresh(), x); } }
     } catch (e) { storageOk = false; }
+    if (!P.tester) { P.unlockAll = false; P.classicOpening = false; }   // playtest switches only count for testers
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) { storageOk = false; } }
   load();
@@ -63,9 +64,19 @@
     return earned;
   }
   function setUnlockAll(on) { P.unlockAll = !!on; save(); }
+  /* Playtest options stay hidden until the tester code is entered in Settings. Only a hash of the
+     code is stored here, so the code itself can't be read from the public source. */
+  const TESTER_HASH = '700d8585';
+  const codeHash = s => { let x = 0x811c9dc5; for (const c of 'cc-tester:' + s) { x ^= c.charCodeAt(0); x = Math.imul(x, 0x01000193) >>> 0; } return x.toString(16); };
+  function unlockTester(code) {
+    if (codeHash(String(code || '').trim().toUpperCase().replace(/\s+/g, '')) !== TESTER_HASH) return false;
+    P.tester = true; save(); return true;
+  }
+  function lockTester() { P.tester = false; P.unlockAll = false; P.classicOpening = false; save(); }
   /* PLAYTEST ONLY - remove before any real-money release. The designer's tester code for store
      currency: COMBATCASH = +1,000 Ad Bucks; COMBATCASH<number> = that many (up to 100,000). Repeatable. */
   function redeemCode(code) {
+    if (!P.tester) return 0;
     const m = /^COMBATCASH(\d{0,6})$/.exec(String(code || '').trim().toUpperCase().replace(/\s+/g, ''));
     if (!m) return 0;
     const amt = m[1] ? Math.min(100000, parseInt(m[1], 10)) : 1000;
@@ -95,7 +106,7 @@
 
   window.CCProfile = {
     get data() { return P; }, get storageOk() { return storageOk; }, REWARDS, CHAR, MOD,
-    owns, openStarter, deckProblems, setDeck, resetToStarter, recordResult, setUnlockAll, redeemCode, setClassicOpening, clearNew, resetProfile,
+    owns, openStarter, deckProblems, setDeck, resetToStarter, recordResult, setUnlockAll, redeemCode, unlockTester, lockTester, setClassicOpening, clearNew, resetProfile,
     setAvatar, storyState, storyStart, storyWin, storyReset,
     starterDone: () => P.starterOpened.every(Boolean),
     ownedCount: () => ({ chars: D.characters.filter(c => owns(c.id)).length, mods: D.modifiers.filter(m => owns(m.id)).length })

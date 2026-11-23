@@ -38,7 +38,7 @@
   $('btnShowroom').onclick = () => window.CCShowroom.show();
   $('packBack').onclick = home;
   $('srBack').onclick = () => window.CCShowroom.leave();
-  $('btnOptions').onclick = optionsModal;
+  $('btnOptions').onclick = () => optionsModal();
   $('btnStory').onclick = () => window.CCStory.show();
   $('btnRules').onclick = () => openRulebook();
   $('btnRules2').onclick = () => openRulebook();
@@ -109,32 +109,48 @@
   }
 
   // ---------------- game start ----------------
-  function optionsModal() {
+  /* Settings: everyone sees the code box. The playtest options appear only after the tester
+     code is entered (it is remembered in this browser until "Hide playtest options"). */
+  function optionsModal(msg) {
+    const T = Pr.data.tester;
     const n = el('div');
-    n.innerHTML = `<h2>Playtest Options</h2><p class="muted">For testing only. These won't exist in the released game.</p>
+    n.innerHTML = `<h2>Settings</h2>
+      <div class="optrow codebox"><b>Enter a code</b>
+        <div class="coderow"><input id="optCode" type="text" autocomplete="off" spellcheck="false" placeholder="Code">
+        <button class="btn small" id="optRedeem">Enter</button></div>
+        <span class="small" id="optCodeMsg"></span></div>` +
+      (T ? `<h3 class="opthead">Playtest Options</h3><p class="muted small">For testing only. These won't exist in the released game.</p>
       <label class="optrow"><input type="checkbox" id="optUnlock" ${Pr.data.unlockAll ? 'checked' : ''}> Unlock every card in The Showroom (to test deck building)</label>
       <label class="optrow"><input type="checkbox" id="optSkip" ${Pr.data.classicOpening ? 'checked' : ''}> Old opening rule: only the <b>first</b> player skips their opening attack
         <span class="muted small">(Default now: both players skip attacking on their own first turn. Bot tests: 54% vs 42% first-seat wins.)</span></label>
-      <p class="muted small">Ad Bucks per match (playtest values): win ${Pr.REWARDS.win}, draw ${Pr.REWARDS.draw}, loss ${Pr.REWARDS.loss}. Prices and pack odds aren't set yet, so the pack store stays closed.</p>
-      <div class="optrow codebox"><b>Tester code</b> <span class="muted small">Adds Ad Bucks to this browser's wallet.</span>
-        <div class="coderow"><input id="optCode" type="text" autocomplete="off" spellcheck="false" placeholder="Enter code">
-        <button class="btn small" id="optRedeem">Redeem</button></div>
-        <span class="small" id="optCodeMsg">Wallet: ${Pr.data.adBucks} Ad Bucks</span></div>`;
+      <p class="muted small">Ad Bucks per match (playtest values): win ${Pr.REWARDS.win}, draw ${Pr.REWARDS.draw}, loss ${Pr.REWARDS.loss}. Prices and pack odds aren't set yet, so the pack store stays closed.
+        Coin codes entered above add Ad Bucks (wallet: <b id="optWallet">${Pr.data.adBucks}</b>).</p>` : '');
     const f = el('div', 'foot');
-    const reset = el('button', 'btn danger small', 'Start over (erase progress)');
-    reset.onclick = () => confirmModal('Erase all progress?', 'Your collection, deck, Ad Bucks and record will be reset. This can\'t be undone.', () => { Pr.resetProfile(); home(); });
+    if (T) {
+      const reset = el('button', 'btn danger small', 'Start over (erase progress)');
+      reset.onclick = () => confirmModal('Erase all progress?', 'Your collection, deck, Ad Bucks and record will be reset. This can\'t be undone.', () => { Pr.resetProfile(); home(); });
+      const lock = el('button', 'btn ghost small', 'Hide playtest options');
+      lock.onclick = () => { Pr.lockTester(); closeModal(); optionsModal(); };
+      f.append(reset, lock);
+    }
     const ok = el('button', 'btn', 'Done'); ok.onclick = () => { closeModal(); home(); };
-    f.append(reset, ok); n.appendChild(f); openModal(n, true);
-    $('optUnlock').onchange = e => Pr.setUnlockAll(e.target.checked);
-    $('optSkip').onchange = e => Pr.setClassicOpening(e.target.checked);
-    const redeem = () => {
-      const amt = Pr.redeemCode($('optCode').value);
-      $('optCodeMsg').textContent = amt ? `+${amt} Ad Bucks added. Wallet: ${Pr.data.adBucks} Ad Bucks` : 'That code isn\'t valid.';
-      $('optCodeMsg').style.color = amt ? 'var(--green)' : 'var(--red)';
-      if (amt) { $('optCode').value = ''; $('walletBucks').textContent = Pr.data.adBucks; }
+    f.appendChild(ok); n.appendChild(f); openModal(n, true);
+    if (T) {
+      $('optUnlock').onchange = e => Pr.setUnlockAll(e.target.checked);
+      $('optSkip').onchange = e => Pr.setClassicOpening(e.target.checked);
+    }
+    const say = (text, good) => { $('optCodeMsg').textContent = text; $('optCodeMsg').style.color = good ? 'var(--green)' : 'var(--red)'; };
+    if (msg) say(msg, true);
+    const enter = () => {
+      const code = $('optCode').value;
+      if (!code.trim()) return;
+      if (Pr.unlockTester(code)) { if (!T) { closeModal(); optionsModal('Playtest options unlocked.'); } else { $('optCode').value = ''; say('Playtest options are already on.', true); } return; }
+      const amt = Pr.redeemCode(code);
+      if (amt) { $('optCode').value = ''; $('walletBucks').textContent = Pr.data.adBucks; if ($('optWallet')) $('optWallet').textContent = Pr.data.adBucks; say(`+${amt} Ad Bucks added.`, true); return; }
+      say('That code isn\'t valid.', false);
     };
-    $('optRedeem').onclick = redeem;
-    $('optCode').onkeydown = e => { if (e.key === 'Enter') redeem(); };
+    $('optRedeem').onclick = enter;
+    $('optCode').onkeydown = e => { if (e.key === 'Enter') enter(); };
   }
 
   function startQuick() {
