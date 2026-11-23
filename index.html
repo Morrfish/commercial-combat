@@ -1,0 +1,147 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commercial Combat</title>
+<link rel="icon" href="assets/favicon.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/game.css?v=8">
+</head>
+<body>
+<div id="app">
+  <!-- Title -->
+  <section id="title" class="screen active">
+    <div class="profilebar">
+      <button class="avatarbtn" id="btnAvatar" title="Choose your avatar"><img id="avatarImg" src="assets/avatar-C077.webp" alt="Your avatar"></button>
+      <div class="wallet" title="Ad Bucks - earned by playing">
+        <img src="assets/currency-ad-bucks-64.webp" alt="Ad Bucks"><b id="walletBucks">0</b><span>Ad Bucks</span>
+      </div>
+    </div>
+    <img class="title-logo" src="assets/logo.webp" alt="Commercial Combat">
+    <div class="title-menu">
+      <button class="btn big" id="btnPacks">Open Starter Packs</button>
+      <button class="btn big" id="btnStory">Story Mode</button>
+      <button class="btn big" id="btnQuick">Quick Combat</button>
+      <button class="btn" id="btnShowroom">The Showroom</button>
+      <div class="menurow"><button class="btn" id="btnHow">How to Play</button><button class="btn" id="btnRules">Rulebook</button></div>
+    </div>
+    <p class="title-note"><span id="titleRecord"></span> · Playtest build · v2 rules ·
+      <button class="linkbtn" id="btnOptions">Playtest options</button></p>
+  </section>
+
+  <!-- Pack opening -->
+  <section id="packs" class="screen">
+    <div class="packs-main">
+      <header class="topbar"><button class="btn small ghost" id="packBack">← Menu</button><h2 id="packTitle">Starter Pack</h2><span></span></header>
+      <div class="pack-stage" id="packStage"></div>
+      <div class="pack-reveal" id="packReveal"></div>
+      <div class="pack-foot" id="packFoot"></div>
+    </div>
+    <aside class="side"><div class="detail" id="packDetail"></div></aside>
+  </section>
+
+  <!-- The Showroom -->
+  <section id="showroom" class="screen">
+    <div class="sr-main">
+      <header class="topbar"><button class="btn small ghost" id="srBack">← Menu</button><h2>The Showroom</h2><span id="srCounts" class="muted"></span></header>
+      <div class="sr-filters" id="srFilters"></div>
+      <div class="sr-grid" id="srGrid"></div>
+    </div>
+    <aside class="side sr-side">
+      <div class="detail" id="srDetail"></div>
+      <div class="deck" id="srDeck"></div>
+    </aside>
+  </section>
+
+  <!-- Story Mode -->
+  <section id="story" class="screen">
+    <div class="story-bg" id="storyBg"></div>
+    <div class="story-main">
+      <header class="topbar"><button class="btn small ghost" id="storyBack">← Menu</button><h2 id="storyTitle">Story Mode</h2><span id="storySub" class="muted"></span></header>
+      <div class="story-body" id="storyBody"></div>
+    </div>
+    <div class="dialogue hidden" id="dialogue">
+      <div class="dlg-portrait" id="dlgPortrait"></div>
+      <div class="dlg-box">
+        <div class="dlg-name" id="dlgName"></div>
+        <div class="dlg-text" id="dlgText"></div>
+        <div class="dlg-foot"><button class="linkbtn" id="dlgSkip">Skip scene</button><span class="muted small">Click or press Space to continue</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Battle -->
+  <section id="battle" class="screen">
+    <div class="board">
+      <header class="pbar rival">
+        <div class="who"><img class="pavatar rival" id="rAvatar" src="assets/avatar-C089.webp" alt=""><span class="name" id="rName">Rival</span><span class="seat" id="rSeat"></span></div>
+        <div class="stats">
+          <span class="coin"><img src="assets/currency-battle-coins-64.webp" alt="">
+            <b id="rCoins">100</b></span>
+          <span title="Characters in hand">✋ <b id="rHand">0</b></span>
+          <span title="Modifiers in hand"><img class="ico" src="assets/ui-modifier.webp" alt="Modifiers"> <b id="rMHand">0</b></span>
+          <span title="Character deck / modifier deck"><img class="ico" src="assets/ui-deck.webp" alt="Decks"> <b id="rDecks">0</b></span>
+          <button class="chip" id="rGraveBtn" title="Rival graveyard"><img class="ico" src="assets/ui-graveyard.webp" alt="Graveyard"> <b id="rGrave">0</b></button>
+        </div>
+      </header>
+      <!-- the printed game board: every card sits in its real-world space -->
+      <div class="matwrap"><div class="mat" id="mat">
+        <div class="half rival" id="rField"></div>
+        <div class="half you" id="yField"></div>
+        <div class="midbar">
+          <div class="turninfo"><b id="turnLabel">Turn 1</b><span id="phaseHint"></span></div>
+          <div class="forecast" id="forecast"></div>
+          <div class="actions" id="actions"></div>
+        </div>
+      </div></div>
+      <header class="pbar you">
+        <div class="who"><img class="pavatar" id="yAvatar" src="assets/avatar-C077.webp" alt=""><span class="name">You</span><span class="seat" id="ySeat"></span></div>
+        <div class="stats">
+          <span class="coin"><img src="assets/currency-battle-coins-64.webp" alt="">
+            <b id="yCoins">100</b></span>
+          <span id="yAllow" class="allow"></span>
+          <span title="Character deck / modifier deck"><img class="ico" src="assets/ui-deck.webp" alt="Decks"> <b id="yDecks">0</b></span>
+          <button class="chip" id="yGraveBtn" title="Your graveyard"><img class="ico" src="assets/ui-graveyard.webp" alt="Graveyard"> <b id="yGrave">0</b></button>
+        </div>
+      </header>
+      <div class="hand">
+        <div class="hand-row" id="yHand"></div>
+        <div class="hand-row mods" id="yMHand"></div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="detail" id="detail"><p class="muted">Click any card to see it here.</p></div>
+      <div class="log" id="log"></div>
+      <div class="side-foot">
+        <label><input type="checkbox" id="fast"> Fast rival</label>
+        <button class="btn small ghost" id="btnRules2">Rulebook</button>
+        <button class="btn small ghost" id="btnQuit">Quit</button>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden"><div class="modal-box" id="modalBox"></div></div>
+  <div id="toast" class="toast hidden"></div>
+  <!-- Rulebook overlay (does not interrupt a battle) -->
+  <div id="rulebook" class="rulebook hidden" role="dialog" aria-label="Rulebook">
+    <div class="rb-bar"><b>Gameplay &amp; Rulebook</b><button class="btn small" id="rbClose">Close ✕</button></div>
+    <iframe id="rbFrame" title="Commercial Combat Rulebook"></iframe>
+  </div>
+</div>
+<script src="js/assets.js?v=8"></script>
+<script src="js/data.js?v=8"></script>
+<script src="js/engine.js?v=8"></script>
+<script src="js/cardimages.js?v=8"></script>
+<script src="js/profile.js?v=8"></script>
+<script src="js/cards.js?v=8"></script>
+<script src="js/packs.js?v=8"></script>
+<script src="js/showroom.js?v=8"></script>
+<script src="js/storydata.js?v=8"></script>
+<script src="js/ui.js?v=8"></script>
+<script src="js/story.js?v=8"></script>
+</body>
+</html>

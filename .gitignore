@@ -1,0 +1,8 @@
+# Only the playable game goes to GitHub (it is served as-is by GitHub Pages).
+# Build tools, the packed Claude-link build and local notes stay on this computer.
+tools/
+web/
+.claude/
+README.txt
+*.pyc
+__pycache__/
